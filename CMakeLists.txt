@@ -29,6 +29,8 @@ juce_add_plugin(EASY
   COPY_PLUGIN_AFTER_BUILD FALSE
 )
 
+juce_generate_juce_header(EASY)
+
 target_sources(EASY
   PRIVATE
     Source/PluginProcessor.cpp
