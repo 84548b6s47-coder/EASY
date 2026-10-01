@@ -45,11 +45,6 @@ void EASYAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // The resonance detector will be introduced as a separate DSP module next.
 }
 
-bool EASYAudioProcessor::hasEditor() const
-{
-    return true;
-}
-
 juce::AudioProcessorEditor* EASYAudioProcessor::createEditor()
 {
     return new EASYAudioProcessorEditor (*this);
