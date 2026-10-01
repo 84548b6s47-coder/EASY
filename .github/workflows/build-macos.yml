@@ -1,0 +1,35 @@
+name: Build EASY macOS
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 3
+
+      - name: Package AU and VST3
+        run: |
+          mkdir -p artifacts
+          cp -R build/EASY_artefacts/Release/AU/EASY.component artifacts/ || true
+          cp -R build/EASY_artefacts/Release/VST3/EASY.vst3 artifacts/ || true
+          ditto -c -k --sequesterRsrc --keepParent artifacts EASY-macOS.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EASY-macOS
+          path: EASY-macOS.zip
