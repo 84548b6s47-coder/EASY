@@ -21,11 +21,27 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel 3
 
+      - name: Ad-hoc sign plugin bundles
+        run: |
+          codesign --force --deep --sign - build/EASY_artefacts/Release/AU/EASY.component
+          codesign --force --deep --sign - build/EASY_artefacts/Release/VST3/EASY.vst3
+          codesign --verify --deep --strict --verbose=2 build/EASY_artefacts/Release/AU/EASY.component
+          codesign --verify --deep --strict --verbose=2 build/EASY_artefacts/Release/VST3/EASY.vst3
+
+      - name: Validate Audio Unit
+        run: |
+          mkdir -p "$HOME/Library/Audio/Plug-Ins/Components"
+          rm -rf "$HOME/Library/Audio/Plug-Ins/Components/EASY.component"
+          cp -R build/EASY_artefacts/Release/AU/EASY.component "$HOME/Library/Audio/Plug-Ins/Components/"
+          killall -9 AudioComponentRegistrar || true
+          sleep 3
+          auval -v aufx Easy SpAr
+
       - name: Package AU and VST3
         run: |
           mkdir -p artifacts
-          cp -R build/EASY_artefacts/Release/AU/EASY.component artifacts/ || true
-          cp -R build/EASY_artefacts/Release/VST3/EASY.vst3 artifacts/ || true
+          cp -R build/EASY_artefacts/Release/AU/EASY.component artifacts/
+          cp -R build/EASY_artefacts/Release/VST3/EASY.vst3 artifacts/
           ditto -c -k --sequesterRsrc --keepParent artifacts EASY-macOS.zip
 
       - name: Upload artifact
